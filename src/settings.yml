@@ -1,0 +1,307 @@
+#
+# Commands:
+# /sell - Sell items
+# /sell menu - Open the main menu
+# /sell reload - Reload the config
+# /drops - Open drops menu
+#
+# Aliases:
+# /vender - /sell
+# /menudrops - /drops
+# /dropsmenu - /drops
+# /items - /drops
+#
+# Permissions:
+# stsell.admin - Permission to use the reload command
+# stsell.enableDrops - Permission to enable/disable the drops
+# stsell.autosell - Permission to enable/disable the autosell
+# stsell.shiftsell - Permission to enable/disable the shiftsell
+# stsell.booster.boosterName - Permission to use a booster
+#
+
+#Actionbar configuration
+ActionBar:
+  #Enable actionbar messages? | If true is enabled
+  enable: true
+
+#Money format configuration
+#
+# This appear in drops menu and sell messages
+#
+# You can be create infinite formats
+#
+MoneyFormat:
+  - "C"
+  - "K"
+  - "M"
+  - "B"
+  - "T"
+  - "Q"
+  - "*"
+
+#Sell items configuration
+#
+# You can be create infinite items
+#
+Sell:
+  #Example item
+  diamond:
+    #id of the example item
+    id: 264
+    #data of the example item
+    data: 0
+    #price of the example item
+    price: 0.6
+    #boosters of the example item
+    #
+    # To use the booster you must have the permission: "stsell.booster.name"
+    # Change the "name" to booster name
+    #
+    # You can be create infinite boosters
+    #
+    booster:
+      #the booster name and price
+      #
+      # In this booster the permission is: "stsell.booster.booster1"
+      #
+      booster1: 0.8
+  gold:
+    id: 266
+    data: 0
+    price: 0.3
+    booster:
+      booster1: 0.4
+      booster2: 0.5
+
+#Drops configuration
+Drops:
+  #Mob drops
+  mobs:
+    #Enable mob drops? | If true is enabled
+    enable: true
+    #Enable auto sell? | If true is enabled | If auto sell is enabled the mobs drops will be sold automatically
+    enableAutoSell: true
+    #Enable new drops chat message? | If true is enabled | If this is enabled when a drop is sent to /drops a message will be displayed in chat
+    enableNewDropsChat: true
+    #Enable new drops actionbar message? | If true is enabled | If this is enabled when a drop is sent to /drops a message will be displayed in actionbar
+    enableNewDropsActionbar: true
+    #Blocked worlds
+    blockedWorlds:
+      - "world"
+    #Mobs allowed
+    items:
+      #Example mob
+      zombie:
+        #Type of the example mob
+        type: "Zombie"
+        #Price of the example mob
+        price: 1.2
+        #Boosters of the example mob
+        booster:
+          booster1: 1.4
+  #Mining drops
+  mining:
+    #Enable mining drops? | If true is enabled
+    enable: true
+    #Enable auto sell? | If true is enabled | If auto sell is enabled the mining drops will be sold automatically
+    enableAutoSell: true
+    #Enable new drops chat message? | If true is enabled | If this is enabled when a drop is sent to /drops a message will be displayed in chat
+    enableNewDropsChat: true
+    #Enable new drops actionbar message? | If true is enabled | If this is enabled when a drop is sent to /drops a message will be displayed in actionbar
+    enableNewDropsActionbar: true
+    #Blocked worlds
+    blockedWorlds:
+      - "world"
+    #Blocks allowed
+    items:
+      #Example block
+      lapis:
+        #Id of the example block
+        id: 21
+        #Data of the example block
+        data: 0
+        #Price of the example block
+        price: 0.9
+        #Boosters of the example block
+        booster:
+          booster1: 1.1
+  #Allowed items in drops menu
+  #
+  # Place the items that can be collected here
+  #
+  # Remember: Some mobs as the zombie drop many different items
+  #
+  # Example:
+  # A zombie can drop potato and other items besides rotten flesh
+  #
+  items:
+    lapis:
+      id: 351
+      data: 4
+      #Type of the item
+      #
+      # place "mining" if the item is a drop of a block
+      # place "mobs" if the item is a drops of a mob
+      #
+      type: "mining"
+      #Item dropped by
+      #
+      # place the name of the section
+      # example image:
+      # http://prntscr.com/qha283
+      #
+      from: "lapis"
+    rottenflesh:
+      id: 367
+      data: 0
+      type: "mobs"
+      from: "zombie"
+
+#Menus configuration
+Menus:
+  #Sell menu
+  sellMenu:
+    #Name of the menu
+    name: "&8Sell - Menu"
+    #Amount of rows in this menu
+    rows: 3
+    #Items of the menus
+    #
+    # You can be create infinite items
+    #
+    items:
+      #Config item | Don't remove this item and don't change the section name
+      configItem: #This is the section name
+        #The item name | You can change that and the rest
+        name: "&eConfiguration"
+        #Item lore
+        lore:
+          - ""
+          - "&7Click to open the configuration menu"
+          - ""
+          - "&fIn this menu you will find:"
+          - ""
+          - "&b* &8Enable/Disable auto sell"
+          - "&b* &8Enable/Disable shift sell"
+          - "&b* &8Enable/Disable the drops system"
+          - ""
+        #Item id
+        id: 1
+        #Item data
+        data: 0
+        #Skull Owner | If the item is not a skull leave "null" | You can place url and a nick
+        skullOwner: "null"
+        #Slot of the item
+        slot: 12
+      #Drops item | Don't remove this item and don't change the section name
+      dropsItem: #This is the section name
+        name: "&eDrops"
+        lore:
+          - ""
+          - "&7Click to open the drops menu"
+          - ""
+        id: 1
+        data: 0
+        skullOwner: "null"
+        slot: 14
+  #Drops menu
+  dropsMenu:
+    name: "&8Sell - Drops"
+    rows: 3
+    items:
+      miningDrops:
+        name: "&eMining"
+        lore:
+          - ""
+          - "&7Amount: &8{miningAmount}"
+          - "&7Price: &8{miningPrice}"
+          - ""
+          - "&fActions:"
+          - "&7Left click - Sell items"
+          - "&7Right click - Open items menu"
+          - ""
+        id: 276
+        data: 0
+        skullOwner: "null"
+        slot: 12
+      mobsDrops:
+        name: "&eMobs"
+        lore:
+          - ""
+          - "&7Amount: &8{mobAmount}"
+          - "&7Price: &8{mobPrice}"
+          - ""
+          - "&fActions:"
+          - "&7Left click - Sell items"
+          - "&7Right click - Open items menu"
+          - ""
+        id: 276
+        data: 0
+        skullOwner: "null"
+        slot: 14
+  itemsMenu:
+    name: "&eDrops"
+  configMenu:
+    name: "&eSell - Configuration"
+    rows: 3
+    items:
+      dropsItem:
+        name: "&eDrops"
+        #What will it look like when it's on?
+        statusOn: "On"
+        #What will it look like when it's off?
+        statusOff: "Off"
+        lore:
+          - ""
+          - "&7Click here to enable/disable the drops"
+          - ""
+          - "&fInfo: &7{status}"
+          - ""
+        id: 1
+        data: 0
+        skullOwner: "null"
+        slot: 11
+      autoSellItem:
+        name: "&eAuto-Sell"
+        statusOn: "On"
+        statusOff: "Off"
+        lore:
+          - ""
+          - "&7Click here to enable/disable the auto-sell"
+          - ""
+          - "&fInfo: &7{status}"
+          - ""
+        id: 1
+        data: 0
+        skullOwner: "null"
+        slot: 13
+      shiftSellItem:
+        name: "&eShift-Sell"
+        statusOn: "On"
+        statusOff: "Off"
+        lore:
+          - ""
+          - "&7Click here to enable/disable the shift-sell"
+          - ""
+          - "&fInfo: &7{status}"
+          - ""
+        id: 1
+        data: 0
+        skullOwner: "null"
+        slot: 15
+
+#Messages configuration
+Messages:
+  onlyInGame: "&cThis command can be used only in game"
+  noPerm: "&cYou don't have permissions to use this"
+  notHasItems: "&cNot has items to sell!"
+  configReloaded: "&aConfig reloaded!"
+  dropsSold: "&aDrops Sold! @n&fAmount: &7{amount} @n&fPrice total: &7{money}"
+  dropsSoldActionbar: "&e{amount} &8| &b{money}"
+  dropsLimitOutmoded: "&cDrops amount limit outmoded! Selling automatically..."
+  itemsSold: "&aItems Sold! @n&fAmount: &7{amount} @n&fPrice total: &7{money}"
+  itemsSoldShift: "&b&lSHIFT-SELL &8- &aItems Sold! @n&fAmount: &7{amount} @n&fPrice total: &7{money}"
+  itemsSoldAuto: "&b&lAUTO-SELL &8- &aItems Sold! @n&fAmount: &7{amount} @n&fPrice total: &7{money}"
+  newDrops: "&aNew drops added in /drops! @n&fAmount: &7{amount} @n&fPrice: &7{money}"
+  newDropsActionbarMining: "&b&lMINING &8- &aNew drops added in /drops!"
+  newDropsActionbarKill: "&b&lKILL &8- &aNew drops added in /drops!"

@@ -1,0 +1,16 @@
+name: ST-Sell
+version: 1.0
+main: stanic.stsell.Main
+author: Stanic
+softdepend:
+  - WorldGuard
+  - ActionBarAPI
+commands:
+  sell:
+    aliases:
+      - vender
+  drops:
+    aliases:
+      - menudrops
+      - dropsmenu
+      - items
