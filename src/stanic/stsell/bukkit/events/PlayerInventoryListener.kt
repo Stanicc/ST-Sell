@@ -5,7 +5,6 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventPriority
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.inventory.InventoryType
 import stanic.stsell.Main
 import stanic.stsell.factory.SellFactory
 import stanic.stsell.hooks.Vault
@@ -13,7 +12,6 @@ import stanic.stsell.utils.*
 import stanic.stutils.bukkit.event.event
 import stanic.stutils.bukkit.message.replaceColor
 import stanic.stutils.bukkit.message.send
-import java.lang.Exception
 
 class PlayerInventoryListener {
 

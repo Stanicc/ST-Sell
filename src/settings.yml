@@ -1,4 +1,16 @@
 #
+# Placeholders:
+#
+# make {placeholder} to MVdWPlaceholderAPI
+# and %placeholder% to PlaceholderAPI
+#
+# sell_miningAmount to get the mining drops amount
+# sell_miningPrice to get the mining drops total price
+# mobAmount to get the mob drops amount
+# mobPrice to get the mob drops total price
+# totalAmount to get the amount of all drops
+# totalPrice to get the total price of all drops
+#
 # Commands:
 # /sell - Sell items
 # /sell menu - Open the main menu

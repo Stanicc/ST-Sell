@@ -5,6 +5,10 @@ author: Stanic
 softdepend:
   - WorldGuard
   - ActionBarAPI
+  - MVdWPlaceholderAPI
+  - PlaceholderAPI
+  - JH_StackMobs
+  - AutoPickup
 commands:
   sell:
     aliases:

@@ -16,7 +16,7 @@ class Messages {
 
     fun onlyInGame(sender: CommandSender) = sender.send(get("onlyInGame"))
 
-    fun get(msg: String) = Main.settings.getString("Messages.$msg").replaceColor().replace("@n", "\n")!!
+    fun get(msg: String) = Main.settings.getString("Messages.$msg").replaceColor().replace("@n", "\n")
 
 }
 

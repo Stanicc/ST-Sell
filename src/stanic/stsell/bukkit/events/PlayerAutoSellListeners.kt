@@ -40,7 +40,7 @@ class PlayerAutoSellListeners {
                 player.send(
                     Messages().get("itemsSoldAuto").replace("{amount}", "$items").replace(
                         "{money}",
-                        total.format()
+                        (total).format()
                     )
                 )
             }
@@ -75,7 +75,7 @@ class PlayerAutoSellListeners {
                 player.send(
                     Messages().get("itemsSoldShift").replace("{amount}", "$items").replace(
                         "{money}",
-                        total.format()
+                        (total).format()
                     )
                 )
             }

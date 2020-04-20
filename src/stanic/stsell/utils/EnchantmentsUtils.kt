@@ -10,7 +10,7 @@ object EnchantmentsUtils {
         if (p.itemInHand.containsEnchantment(Enchantment.LOOT_BONUS_BLOCKS)) {
             val level = p.itemInHand.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS)
             val random = Random()
-            var nivel = random.nextInt(4) + 1
+            var nivel = random.nextInt(4) + level
             if (level >= 30) {
                 val max = level / 6
                 val least = level / 7
@@ -25,7 +25,7 @@ object EnchantmentsUtils {
         if (p.itemInHand.containsEnchantment(Enchantment.LOOT_BONUS_MOBS)) {
             val level = p.itemInHand.getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS)
             val random = Random()
-            var nivel = random.nextInt(4) + 1
+            var nivel = random.nextInt(4) + level
             if (level >= 30) {
                 val max = level / 6
                 val least = level / 7

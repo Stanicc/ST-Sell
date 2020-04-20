@@ -2,12 +2,19 @@ package stanic.stsell
 
 import org.bukkit.Bukkit
 import org.bukkit.configuration.InvalidConfigurationException
-import org.bukkit.configuration.file.*
+import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.plugin.java.JavaPlugin
-import stanic.stsell.bukkit.commands.*
+import stanic.stsell.bukkit.commands.DropsCommand
+import stanic.stsell.bukkit.commands.SellCommand
 import stanic.stsell.bukkit.events.*
-import stanic.stsell.factory.model.*
+import stanic.stsell.factory.SellFactory
+import stanic.stsell.factory.model.Drops
+import stanic.stsell.factory.model.Player
+import stanic.stsell.hooks.PlaceholderAPI
 import stanic.stsell.hooks.Vault
+import stanic.stsell.utils.format
+import stanic.stsell.utils.formatDrops
 import stanic.stutils.bukkit.message.send
 import java.io.File
 
@@ -16,6 +23,8 @@ class Main: JavaPlugin() {
     val drops = HashMap<String, Drops>()
     val player = HashMap<String, Player>()
 
+    var jhmobs = false
+
     override fun onEnable() {
         instance = this
         Vault.setupEconomy()
@@ -23,6 +32,49 @@ class Main: JavaPlugin() {
         loadSettings()
         loadCommands()
         loadEvents()
+
+        if (Bukkit.getPluginManager().getPlugin("JH_StackMobs") != null) jhmobs = true
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) PlaceholderAPI().register()
+        if (Bukkit.getPluginManager().getPlugin("MVdWPlaceholderAPI") != null) {
+            be.maximvdw.placeholderapi.PlaceholderAPI.registerPlaceholder(this, "sell_miningAmount") {
+                val player = it.player
+
+                return@registerPlaceholder drops[player.name]!!.mineItems.size.formatDrops()
+            }
+
+            be.maximvdw.placeholderapi.PlaceholderAPI.registerPlaceholder(this, "sell_miningPrice") {
+                val player = it.player
+
+                return@registerPlaceholder SellFactory().getPrice(drops[player.name]!!, "mining").format()
+            }
+
+            be.maximvdw.placeholderapi.PlaceholderAPI.registerPlaceholder(this, "sell_mobAmount") {
+                val player = it.player
+
+                return@registerPlaceholder drops[player.name]!!.mobItems.size.formatDrops()
+            }
+
+            be.maximvdw.placeholderapi.PlaceholderAPI.registerPlaceholder(this, "sell_mobPrice") {
+                val player = it.player
+
+                return@registerPlaceholder SellFactory().getPrice(drops[player.name]!!, "mob").format()
+            }
+
+            be.maximvdw.placeholderapi.PlaceholderAPI.registerPlaceholder(this, "sell_totalAmount") {
+                val player = it.player
+
+                return@registerPlaceholder (drops[player.name]!!.mineItems.size + drops[player.name]!!.mobItems.size).formatDrops()
+            }
+
+            be.maximvdw.placeholderapi.PlaceholderAPI.registerPlaceholder(this, "sell_totalPrice") {
+                val player = it.player
+
+                return@registerPlaceholder (SellFactory().getPrice(
+                    drops[player.name]!!,
+                    "mining"
+                ) + SellFactory().getPrice(drops[player.name]!!, "mob")).format()
+            }
+        }
 
         Bukkit.getConsoleSender().send("§e[ST-Sell] §fAtivado!")
     }
@@ -33,6 +85,7 @@ class Main: JavaPlugin() {
     }
 
     private fun loadEvents() {
+        if (server.pluginManager.getPlugin("AutoPickup") != null) PlayerMiningListener().onDropItemListener(this)
         PlayerMiningListener().onMining(this)
         PlayerInventoryListener().onInteractInDrops(this)
         PlayerInventoryListener().onInteractInMain(this)

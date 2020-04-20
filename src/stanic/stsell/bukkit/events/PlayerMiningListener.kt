@@ -2,47 +2,57 @@ package stanic.stsell.bukkit.events
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin
 import com.sk89q.worldguard.protection.flags.DefaultFlag
+import me.MnMaxon.AutoPickup.API.DropToInventoryEvent
 import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.craftbukkit.v1_8_R3.util.CraftMagicNumbers
 import org.bukkit.event.EventPriority
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.inventory.ItemStack
 import stanic.stsell.Main
-import stanic.stsell.factory.*
-import stanic.stsell.factory.model.*
+import stanic.stsell.factory.SellFactory
+import stanic.stsell.factory.model.Drops
+import stanic.stsell.factory.model.Player
+import stanic.stsell.factory.verifyIfIsNegative
 import stanic.stsell.hooks.Vault
 import stanic.stsell.utils.*
 import stanic.stutils.bukkit.event.event
-import stanic.stutils.bukkit.message.replaceColor
 import stanic.stutils.bukkit.message.send
-import kotlin.random.Random
 
 @Suppress("DEPRECATION")
 class PlayerMiningListener {
 
     private val sett = Main.settings
 
-    fun onMining(main: Main) = main.event<BlockBreakEvent>(EventPriority.MONITOR, cancelEvent = true) { event ->
+    fun onMining(main: Main) = main.event<BlockBreakEvent>(EventPriority.MONITOR) { event ->
         val player = event.player
         val block = event.block
 
         if (!main.drops.containsKey(player.name)) {
             main.drops[player.name] =
                 Drops(0.0, 0.0, 0.0, 0.0, ArrayList(), ArrayList())
-
-            if (!main.player.containsKey(player.name)) main.player[player.name] = Player(
-                autoSell = false,
-                shiftSell = false,
-                enableDrops = true
-            )
         }
-        if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
-            val worldGuard = if (WorldGuardPlugin.inst().getRegionManager(block.location.world).getApplicableRegions(block.location) != null) WorldGuardPlugin.inst().regionContainer.createQuery().testState(block.location, player, DefaultFlag.BLOCK_BREAK) else true
 
-            if (!worldGuard && !player.hasPermission("worldguard.region.bypass.*")) {
-                event.isCancelled = true
-                return@event
+        if (!main.player.containsKey(player.name)) main.player[player.name] = Player(
+            autoSell = false,
+            shiftSell = false,
+            enableDrops = true
+        )
+
+        if (Bukkit.getPluginManager().getPlugin("WorldGuard") != null) {
+            val worldGuard =
+                if (WorldGuardPlugin.inst().getRegionManager(block.location.world)
+                        .getApplicableRegions(block.location) != null
+                ) WorldGuardPlugin.inst().regionContainer.createQuery().testBuild(
+                    block.location,
+                    player,
+                    DefaultFlag.BLOCK_BREAK
+                ) else true
+
+            if (!worldGuard) {
+                if (!player.hasPermission("worldguard.region.bypass.*")) {
+                    event.isCancelled = true
+                    return@event
+                }
             }
         }
         if (!main.player[player.name]!!.enableDrops || !Main.settings.getBoolean("Drops.mining.enable")) return@event
@@ -79,6 +89,10 @@ class PlayerMiningListener {
                         (sell.money * blockDrops.size).format()
                     ).sendInActionbar(player)
 
+                block.type = Material.AIR
+                block.drops.clear()
+                block.breakNaturally()
+                event.isCancelled = true
                 return@event
             }
 
@@ -90,7 +104,6 @@ class PlayerMiningListener {
                         "{money}",
                         (sell.money * blockDrops.size).format()
                     ).sendInActionbar(player)
-
             } else {
                 SellFactory().addDrops(
                     drops,
@@ -102,24 +115,34 @@ class PlayerMiningListener {
                 SellFactory().addItems(drops, blockDrops, "mining")
 
                 if (Main.settings.getBoolean("Drops.mining.enableNewDropsChat"))
-                player.send(
-                    Messages().get("newDrops").replace(
+                    player.send(
+                        Messages().get("newDrops").replace(
+                            "{amount}",
+                            "${blockDrops.size}"
+                        ).replace("{money}", (sell.money * blockDrops.size).format())
+                    )
+
+                if (Main.settings.getBoolean("Drops.mining.enableNewDropsActionbar"))
+                    Messages().get("newDropsActionbarMining").replace(
                         "{amount}",
                         "${blockDrops.size}"
                     ).replace("{money}", (sell.money * blockDrops.size).format())
-                )
-
-                if (Main.settings.getBoolean("Drops.mining.enableNewDropsActionbar"))
-                Messages().get("newDropsActionbarMining").replace(
-                    "{amount}",
-                    "${blockDrops.size}"
-                ).replace("{money}", (sell.money * blockDrops.size).format())
-                    .sendInActionbar(player)
+                        .sendInActionbar(player)
             }
             block.type = Material.AIR
             block.drops.clear()
             block.breakNaturally()
             event.isCancelled = true
+        }
+    }
+
+    fun onDropItemListener(main: Main) = main.event<DropToInventoryEvent> { e ->
+        if (e.items.isNotEmpty()) {
+            val sell = SellUtils().verifyItem(e.items[0].typeId, e.items[0].durability.toInt())
+            if (sell != null) {
+                e.isCancelled = true
+                e.items.clear()
+            }
         }
     }
 

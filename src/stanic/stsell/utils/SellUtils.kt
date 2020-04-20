@@ -72,7 +72,6 @@ class SellUtils {
     }
 
     fun verifyItem(id: Int, data: Int): String? {
-        val sell: Sell? = null
         var type: String? = null
 
         val section = sett.getConfigurationSection("Drops.items")
