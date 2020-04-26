@@ -12,7 +12,7 @@ class PlayerConnectListener {
         val player = event.player
 
         if (!main.drops.containsKey(player.name)) main.drops[player.name] =
-            Drops(0.0, 0.0, 0.0, 0.0, ArrayList(), ArrayList())
+            Drops(0.0, 0.0, 0.0, 0.0, HashMap(), HashMap())
         if (!main.player.containsKey(player.name)) main.player[player.name] = Player(
             autoSell = false,
             shiftSell = false,

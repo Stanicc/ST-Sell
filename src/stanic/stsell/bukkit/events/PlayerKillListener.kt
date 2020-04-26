@@ -22,7 +22,7 @@ class PlayerKillListener {
 
             if (!main.drops.containsKey(player.name)) {
                 main.drops[player.name] =
-                    Drops(0.0, 0.0, 0.0, 0.0, ArrayList(), ArrayList())
+                    Drops(0.0, 0.0, 0.0, 0.0, HashMap(), HashMap())
             }
 
             if (!main.player.containsKey(player.name)) main.player[player.name] =
@@ -44,81 +44,85 @@ class PlayerKillListener {
 
                 val drops = main.drops[player.name]!!
 
-                val droppedItems = ArrayList<ItemStack>()
-                event.drops.forEach { droppedItems.add(it) }
+                val itemsFilter =
+                    event.drops.toHashSet()
+                        .filter { SellUtils().verifyItem(it.typeId, it.durability.toInt()) != null }
+                val droppedItems = itemsFilter
+                    .associateWith { item ->
+                        itemsFilter.filter { item.typeId == it.typeId && item.durability == it.durability }
+                            .sumBy { it.amount }
+                    } as HashMap<ItemStack, Int>
 
-                if (droppedItems.isEmpty()) return@event
-
-                if (EnchantmentsUtils.getLooting(player) > 1) {
-                    var looting = EnchantmentsUtils.getLooting(player)
-                    while (looting > 0) {
-                        droppedItems.add(droppedItems[0])
-                        looting -= 1
-                    }
-                }
+                val looting = EnchantmentsUtils.getLooting(player)
+                var multiply = 1
+                var amountOfDrops = 0
 
                 if (Main.instance.jhmobs && player.isSneaking) {
-                    if (entity.hasMetadata("JH_StackMobs")) {
-                        val amount =
-                            droppedItems.size * JH_StackMobs.API.getStackAmount(entity)
-
-                        while (droppedItems.size < amount) {
-                            event.drops.forEach { droppedItems.add(it) }
-                        }
-                    }
+                    if (entity.hasMetadata("JH_StackMobs")) multiply = JH_StackMobs.API.getStackAmount(entity)
                 }
 
-                val mobDrops = droppedItems.toList()
+                droppedItems.keys.forEach {
+                    amountOfDrops += if (amountOfDrops == 0) (droppedItems.getValue(it) * looting).apply {
+                        droppedItems[it] = droppedItems.getValue(it) * looting
+                    }
+                    else droppedItems.getValue(it)
+                    droppedItems[it] = droppedItems.getValue(it) * multiply + it.amount
+                    if (it.amount > 1) {
+                        amountOfDrops += it.amount
+                        it.amount = 1
+                    }
+                }
+                amountOfDrops *= multiply
 
                 event.drops.clear()
                 event.entity.remove()
 
                 if (main.player[player.name]!!.autoSell && Main.settings.getBoolean("Drops.mobs.enableAutoSell")) {
-                    Vault.eco.depositPlayer(player, sell.money * mobDrops.size)
+                    Vault.eco.depositPlayer(player, sell.money * amountOfDrops)
 
                     Messages().get("dropsSoldActionbar")
-                        .replace("{amount}", "${mobDrops.size}").replace(
+                        .replace("{amount}", "$amountOfDrops").replace(
                             "{money}",
-                            (sell.money * mobDrops.size).format()
+                            (sell.money * amountOfDrops).format()
                         ).sendInActionbar(player)
 
                     return@event
                 }
 
-                if ((drops.priceMob * mobDrops.size + drops.sellMob).verifyIfIsNegative()) {
-                    Vault.eco.depositPlayer(player, sell.money * mobDrops.size)
+                if ((drops.priceMob * (droppedItems.keys.size * (looting * multiply)) + drops.sellMob).verifyIfIsNegative()) {
+                    Vault.eco.depositPlayer(player, sell.money * amountOfDrops)
 
                     Messages().get("dropsLimitOutmoded")
-                        .replace("{amount}", "${mobDrops.size}").replace(
+                        .replace("{amount}", "$amountOfDrops").replace(
                             "{money}",
-                            (sell.money * mobDrops.size).format()
+                            (sell.money * amountOfDrops).format()
                         ).sendInActionbar(player)
                 } else {
                     SellFactory().addDrops(
                         drops,
-                        mobDrops.size.toDouble(),
-                        sell.money * (mobDrops.size),
+                        amountOfDrops.toDouble(),
+                        sell.money * amountOfDrops,
                         "mob"
                     )
-                    SellFactory().addItems(drops, mobDrops, "mob")
+                    SellFactory().addItems(drops, droppedItems, "mob")
 
                     if (Main.settings.getBoolean("Drops.mobs.enableNewDropsChat"))
-                    player.send(
-                        Messages().get("newDrops").replace(
-                            "{amount}",
-                            "${mobDrops.size}"
-                        ).replace(
-                            "{money}",
-                            (sell.money * mobDrops.size).format()
+                        player.send(
+                            Messages().get("newDrops").replace(
+                                "{amount}",
+                                "$amountOfDrops"
+                            ).replace(
+                                "{money}",
+                                (sell.money * amountOfDrops).format()
+                            )
                         )
-                    )
 
                     if (Main.settings.getBoolean("Drops.mobs.enableNewDropsActionbar"))
-                    Messages().get("newDropsActionbarKill").replace(
-                        "{amount}",
-                        "${mobDrops.size}"
-                    ).replace("{money}", (sell.money * mobDrops.size).format())
-                        .sendInActionbar(player)
+                        Messages().get("newDropsActionbarKill").replace(
+                            "{amount}",
+                            "$amountOfDrops"
+                        ).replace("{money}", (sell.money * amountOfDrops).format())
+                            .sendInActionbar(player)
                 }
             }
         }

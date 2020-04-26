@@ -29,7 +29,7 @@ class PlayerMiningListener {
 
         if (!main.drops.containsKey(player.name)) {
             main.drops[player.name] =
-                Drops(0.0, 0.0, 0.0, 0.0, ArrayList(), ArrayList())
+                Drops(0.0, 0.0, 0.0, 0.0, HashMap(), HashMap())
         }
 
         if (!main.player.containsKey(player.name)) main.player[player.name] = Player(
@@ -67,26 +67,35 @@ class PlayerMiningListener {
 
             val drops = main.drops[player.name]!!
 
-            val droppedItems = ArrayList<ItemStack>()
-            event.block.drops.forEach { droppedItems.add(it) }
+            val itemsFilter =
+                event.block.drops.toHashSet()
+                    .filter { SellUtils().verifyItem(it.typeId, it.durability.toInt()) != null }
+            val droppedItems = itemsFilter
+                .associateWith { item ->
+                    itemsFilter.filter { item.typeId == it.typeId && item.durability == it.durability }
+                        .sumBy { it.amount }
+                } as HashMap<ItemStack, Int>
 
-            if (EnchantmentsUtils.getFortune(player) > 1) {
-                var fortune = EnchantmentsUtils.getFortune(player)
-                while (fortune > 0) {
-                    droppedItems.add(droppedItems[0])
-                    fortune -= 1
+            val fortune = EnchantmentsUtils.getFortune(player)
+            var amountOfDrops = 0
+
+            droppedItems.keys.forEach {
+                amountOfDrops += if (amountOfDrops == 0) (droppedItems.getValue(it) * fortune).apply {
+                    droppedItems[it] = droppedItems.getValue(it) * fortune
                 }
+                else droppedItems.getValue(it)
+                droppedItems[it] = droppedItems.getValue(it) + it.amount
+                amountOfDrops += it.amount
+                if (it.amount > 1) it.amount = 1
             }
 
-            val blockDrops = droppedItems.toList()
-
             if (main.player[player.name]!!.autoSell && Main.settings.getBoolean("Drops.mining.enableAutoSell")) {
-                Vault.eco.depositPlayer(player, sell.money * blockDrops.size)
+                Vault.eco.depositPlayer(player, sell.money * amountOfDrops)
 
                 Messages().get("dropsSoldActionbar")
-                    .replace("{amount}", "${blockDrops.size}").replace(
+                    .replace("{amount}", "$amountOfDrops").replace(
                         "{money}",
-                        (sell.money * blockDrops.size).format()
+                        (sell.money * amountOfDrops).format()
                     ).sendInActionbar(player)
 
                 block.type = Material.AIR
@@ -96,37 +105,38 @@ class PlayerMiningListener {
                 return@event
             }
 
-            if ((drops.priceMine * blockDrops.size + drops.sellMine).verifyIfIsNegative()) {
-                Vault.eco.depositPlayer(player, sell.money * blockDrops.size)
+            if ((drops.priceMine * amountOfDrops + drops.sellMine).verifyIfIsNegative()) {
+                Vault.eco.depositPlayer(player, sell.money * amountOfDrops)
 
                 Messages().get("dropsLimitOutmoded")
-                    .replace("{amount}", "${blockDrops.size}").replace(
+                    .replace("{amount}", "$amountOfDrops").replace(
                         "{money}",
-                        (sell.money * blockDrops.size).format()
+                        (sell.money * amountOfDrops).format()
                     ).sendInActionbar(player)
             } else {
-                SellFactory().addDrops(
-                    drops,
-                    blockDrops.size.toDouble(),
-                    sell.money * blockDrops.size.toDouble(),
-                    "mining"
-                )
-
-                SellFactory().addItems(drops, blockDrops, "mining")
+                Bukkit.getServer().scheduler.runTaskAsynchronously(Main.instance) {
+                    SellFactory().addDrops(
+                        drops,
+                        amountOfDrops.toDouble(),
+                        sell.money * amountOfDrops.toDouble(),
+                        "mining"
+                    )
+                    SellFactory().addItems(drops, droppedItems, "mining")
+                }
 
                 if (Main.settings.getBoolean("Drops.mining.enableNewDropsChat"))
                     player.send(
                         Messages().get("newDrops").replace(
                             "{amount}",
-                            "${blockDrops.size}"
-                        ).replace("{money}", (sell.money * blockDrops.size).format())
+                            "$amountOfDrops"
+                        ).replace("{money}", (sell.money * amountOfDrops).format())
                     )
 
                 if (Main.settings.getBoolean("Drops.mining.enableNewDropsActionbar"))
                     Messages().get("newDropsActionbarMining").replace(
                         "{amount}",
-                        "${blockDrops.size}"
-                    ).replace("{money}", (sell.money * blockDrops.size).format())
+                        "$amountOfDrops"
+                    ).replace("{money}", (sell.money * amountOfDrops).format())
                         .sendInActionbar(player)
             }
             block.type = Material.AIR

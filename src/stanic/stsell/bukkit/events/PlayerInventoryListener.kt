@@ -44,8 +44,8 @@ class PlayerInventoryListener {
                         player.send(
                             Messages().get("dropsSold").replace(
                                 "{amount}", when (type) {
-                                    "mining" -> main.drops[player.name]!!.mineItems.size.formatDrops()
-                                    "mob" -> main.drops[player.name]!!.mobItems.size.formatDrops()
+                                    "mining" -> main.drops[player.name]!!.getDropsSize("mining").formatDrops()
+                                    "mob" -> main.drops[player.name]!!.getDropsSize("mob").formatDrops()
                                     else -> TODO()
                                 }
                             ).replace("{money}", money.format())

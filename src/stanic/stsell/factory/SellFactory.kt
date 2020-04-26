@@ -13,10 +13,16 @@ class SellFactory {
         }
     }
 
-    fun addItems(drops: Drops, items: List<ItemStack>, type: String) = items.forEach {
+    fun addItems(drops: Drops, items: HashMap<ItemStack, Int>, type: String) = items.forEach {
         when (type) {
-            "mining" -> drops.mineItems.add(it)
-            "mob" -> drops.mobItems.add(it)
+            "mining" -> {
+                if (drops.mineItems[it.key] == null) drops.mineItems[it.key] = 0L
+                drops.mineItems[it.key] = drops.mineItems[it.key]!!.plus(it.value.toLong())
+            }
+            "mob" -> {
+                if (drops.mobItems[it.key] == null) drops.mobItems[it.key] = 0L
+                drops.mobItems[it.key] = drops.mobItems[it.key]!!.plus(it.value.toLong())
+            }
         }
     }
 
@@ -26,24 +32,25 @@ class SellFactory {
                 drops.sellMine -= item.amount
                 drops.priceMine -= money * item.amount
 
-                for (i in 0..item.amount) {
-                    val amount = item.amount
-                    item.amount = 1
-                    drops.mineItems.remove(item).apply { item.amount = amount }
-                }
+                val amount = item.amount
+                item.amount = 1
+                if ((drops.mineItems[item]!! - amount) <= 0) drops.mineItems.remove(item)
+                else drops.mineItems[item] = drops.mineItems[item]!! - amount
+
+                item.amount = amount
             }
             "mob" -> {
                 drops.sellMob -= item.amount
                 drops.priceMob -= money * item.amount
 
-                for (i in 0..item.amount) {
-                    val amount = item.amount
-                    item.amount = 1
-                    drops.mobItems.remove(item).apply { item.amount = amount }
-                }
+                val amount = item.amount
+                item.amount = 1
+                if ((drops.mobItems[item]!! - amount) <= 0) drops.mobItems.remove(item)
+                else drops.mobItems[item] = drops.mobItems[item]!! - amount
+
+                item.amount = amount
             }
         }
-
     }
 
     fun addDrops(drops: Drops, amount: Double, money: Double, type: String) {

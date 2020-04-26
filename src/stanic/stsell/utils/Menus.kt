@@ -84,8 +84,8 @@ class Menus {
             )
 
             when (type) {
-                "mining" -> drops.mineItems.forEach { inv.addItem(it) }
-                "mob" -> drops.mobItems.forEach { inv.addItem(it) }
+                "mining" -> drops.getDrops("mining").forEach { inv.addItem(it) }
+                "mob" -> drops.getDrops("mob").forEach { inv.addItem(it) }
             }
 
             sender.openInventory(inv)

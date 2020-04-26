@@ -48,9 +48,9 @@ fun Int.formatDrops(): String {
 }
 
 fun String.replaceInfo(drops: Drops) = this.run {
-    replace("{miningAmount}", drops.mineItems.size.formatDrops())
+    replace("{miningAmount}", drops.getDropsSize("mining").formatDrops())
         .replace("{miningPrice}", SellFactory().getPrice(drops, "mining").format())
-        .replace("{mobAmount}", drops.mobItems.size.formatDrops())
+        .replace("{mobAmount}", drops.getDropsSize("mob").formatDrops())
         .replace("{mobPrice}", SellFactory().getPrice(drops, "mob").format())
         .replaceColor()
 }!!
