@@ -8,19 +8,14 @@ class SellUtils {
 
     fun sellItem(id: Int, data: Int): Sell? {
         var sell: Sell? = null
+        val item = sett.getConfigurationSection("Sell").getKeys(false).filter { sett.getInt("Sell.$it.id") == id && sett.getInt("Sell.$it.data") == data }.getOrNull(0)
 
-        val section = sett.getConfigurationSection("Sell")
-        for (it in section.getKeys(false)) {
-            val item = "Sell.$it"
-            val price = sett.getDouble("$item.price")
-            if (sett.getInt("$item.id") == id && sett.getInt("$item.data") == data) {
-                sell = Sell(price)
+        if (item != null) {
+            val price = sett.getDouble("Sell.$item.price")
+            sell = Sell(price)
 
-                sett.getConfigurationSection("$item.booster").getKeys(false).forEach { booster ->
-                    sell.booster["stsell.booster.$booster"] = sett.getDouble("$item.booster.$booster")
-                }
-
-                break
+            sett.getConfigurationSection("Sell.$item.booster").getKeys(false).forEach { booster ->
+                sell.booster["stsell.booster.$booster"] = sett.getDouble("Sell.$item.booster.$booster")
             }
         }
 
@@ -29,20 +24,16 @@ class SellUtils {
 
     fun sellBlock(id: Int, data: Int): Sell? {
         var sell: Sell? = null
+        val selected = sett.getConfigurationSection("Drops.mining.items").getKeys(false).filter { sett.getInt("Drops.mining.items.$it.id") == id && sett.getInt("Drops.mining.items.$it.data") == data }.getOrNull(0)
 
-        val section = sett.getConfigurationSection("Drops.mining.items")
-        for (it in section.getKeys(false)) {
-            val block = "Drops.mining.items.$it"
+        if (selected != null) {
+            val block = "Drops.mining.items.$selected"
+
             val price = sett.getDouble("$block.price")
+            sell = Sell(price)
 
-            if (sett.getInt("$block.id") == id && sett.getInt("$block.data") == data) {
-                sell = Sell(price)
-
-                sett.getConfigurationSection("$block.booster").getKeys(false).forEach { booster ->
-                    sell.booster["stsell.booster.$booster"] = sett.getDouble("$block.booster.$booster")
-                }
-
-                break
+            sett.getConfigurationSection("$block.booster").getKeys(false).forEach { booster ->
+                sell.booster["stsell.booster.$booster"] = sett.getDouble("$block.booster.$booster")
             }
         }
 
@@ -51,20 +42,16 @@ class SellUtils {
 
     fun sellMob(type: String): Sell? {
         var sell: Sell? = null
+        val selected = sett.getConfigurationSection("Drops.mobs.items").getKeys(false).filter { sett.getString("Drops.mobs.items.$it.type").toLowerCase() == type.toLowerCase() }.getOrNull(0)
 
-        val section = sett.getConfigurationSection("Drops.mobs.items")
-        for (it in section.getKeys(false)) {
-            val mob = "Drops.mobs.items.$it"
+        if (selected != null) {
+            val mob = "Drops.mobs.items.$selected"
+
             val price = sett.getDouble("$mob.price")
+            sell = Sell(price)
 
-            if (sett.getString("$mob.type").toLowerCase() == type.toLowerCase()) {
-                sell = Sell(price)
-
-                sett.getConfigurationSection("$mob.booster").getKeys(false).forEach { booster ->
-                    sell.booster["stsell.booster.$booster"] = sett.getDouble("$mob.booster.$booster")
-                }
-
-                break
+            sett.getConfigurationSection("$mob.booster").getKeys(false).forEach { booster ->
+                sell.booster["stsell.booster.$booster"] = sett.getDouble("$mob.booster.$booster")
             }
         }
 
@@ -73,14 +60,11 @@ class SellUtils {
 
     fun verifyItem(id: Int, data: Int): String? {
         var type: String? = null
+        val selected = sett.getConfigurationSection("Drops.items").getKeys(false).filter { sett.getInt("Drops.items.$it.id") == id && sett.getInt("Drops.items.$it.data") == data }.getOrNull(0)
 
-        val section = sett.getConfigurationSection("Drops.items")
-        for (it in section.getKeys(false)) {
-            val item = "Drops.items.$it"
-            if (sett.getInt("$item.id") == id && sett.getInt("$item.data") == data) {
-                type = "Drops.${sett.getString("$item.type")}.items.${sett.getString("$item.from")}"
-                break
-            }
+        if (selected != null) {
+            val item = "Drops.items.$selected"
+            type = "Drops.${sett.getString("$item.type")}.items.${sett.getString("$item.from")}"
         }
 
         return type

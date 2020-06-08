@@ -9,7 +9,7 @@ import stanic.stsell.factory.SellFactory
 import stanic.stsell.factory.model.Drops
 import stanic.stutils.bukkit.message.replaceColor
 import stanic.stutils.bukkit.message.send
-import stanic.stutils.server.utils.sendActionBar
+import stanic.stutils.bukkit.utils.sendActionBar
 import java.text.DecimalFormat
 
 class Messages {
@@ -23,7 +23,7 @@ class Messages {
 fun String.sendInActionbar(player: Player) {
     if (Main.settings.getBoolean("ActionBar.enable")) {
         if (Bukkit.getPluginManager().getPlugin("ActionBarAPI") != null) ActionBarAPI.sendActionBar(player, this)
-        else sendActionBar(player, this)
+        else player.sendActionBar(this)
     }
 }
 

@@ -99,13 +99,22 @@ Drops:
     enableNewDropsActionbar: true
     #Blocked worlds
     blockedWorlds:
-      - "world"
+      - "example"
     #Mobs allowed
     items:
       #Example mob
       zombie:
         #Type of the example mob
         type: "Zombie"
+        #Price of the example mob
+        price: 1.2
+        #Boosters of the example mob
+        booster:
+          booster1: 1.4
+      #Example mob
+      golem:
+        #Type of the example mob
+        type: "Iron_Golem"
         #Price of the example mob
         price: 1.2
         #Boosters of the example mob
@@ -123,7 +132,7 @@ Drops:
     enableNewDropsActionbar: true
     #Blocked worlds
     blockedWorlds:
-      - "world"
+      - "example"
     #Blocks allowed
     items:
       #Example block
@@ -168,6 +177,11 @@ Drops:
       data: 0
       type: "mobs"
       from: "zombie"
+    iron:
+      id: 265
+      data: 0
+      type: "mobs"
+      from: "golem"
 
 #Menus configuration
 Menus:

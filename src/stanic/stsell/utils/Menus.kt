@@ -6,8 +6,8 @@ import org.bukkit.inventory.ItemStack
 import stanic.stsell.Main
 import stanic.stsell.factory.model.Drops
 import stanic.stutils.bukkit.message.replaceColor
-import stanic.stutils.server.utils.ItemBuilder
-import stanic.stutils.server.utils.SkullUtils
+import stanic.stutils.bukkit.utils.ItemBuilder
+import stanic.stutils.bukkit.utils.SkullUtils
 
 class Menus {
 
